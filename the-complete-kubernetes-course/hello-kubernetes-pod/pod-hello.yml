@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nodekuberneteshello.example.com
+  labels:
+    app: kuberneteshello
+spec:
+  containers:
+  - image: rodrigoguedes/docker-demo:0.0.1
+    name: k8s-demo
+    ports:
+    - containerPort: 3000
