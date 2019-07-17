@@ -29,4 +29,5 @@ kubectl exec nodekuberneteshello.example.com -- ls /app -> list all files that a
 kubectl describe service kuberneteshello-service
 #use busybox to connect on cluster and execute a GET HTTP Request
 kubectl run -i --tty busybox --image=busybox --restart=Never -- sh
-
+telnet 10.1.0.23 3000   -> 10.1.0.23 get from (kubectl describe service kuberneteshello-service) attribute Endpoints
+GET /
