@@ -29,5 +29,28 @@ kubectl exec nodekuberneteshello.example.com -- ls /app -> list all files that a
 kubectl describe service kuberneteshello-service
 #use busybox to connect on cluster and execute a GET HTTP Request
 kubectl run -i --tty busybox --image=busybox --restart=Never -- sh
-telnet 10.1.0.23 3000   -> 10.1.0.23 get from (kubectl describe service kuberneteshello-service) attribute Endpoints
-GET /
+-> telnet 10.1.0.23 3000   -> 10.1.0.23 get from (kubectl describe service kuberneteshello-service) attribute Endpoints
+-> GET /
+
+#Replication Controller - Scale pods
+kubectl create -f service-hello-controller.yml
+kubectl get pods
+kubectl describe pod hello-controller-lg26x
+kubectl delete pod hello-controller-lg26x
+kubectl get pods
+//Scale to 4 using file
+kubectl scale --replicas=4 -f service-hello-controller.yml
+kubectl get rc
+//Scale to 1 using name
+kubectl scale --replicas=1 rc/hello-controller
+kubectl delete rc/hello-controller
+
+#Deployments
+kubectl create -f service-hello-deployment.yml
+kubectl get deployments
+kubectl get pods --show-labels
+kubectl rollout status deployment/hello-deployment
+kubectl expose deployment hello-deployment --type=NodePort
+kubectl get service
+kubectl describe service hello-deployment
+kubectl set image deployment/hello-deployment k8s-demo=rodrigoguedes/docker-demo:0.0.2

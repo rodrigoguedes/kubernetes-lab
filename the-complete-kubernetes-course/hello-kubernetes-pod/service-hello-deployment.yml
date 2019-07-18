@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: hello-deployment
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      containers:
+      - name: k8s-demo
+        image: rodrigoguedes/docker-demo:0.0.1
+        ports:
+        - name: nodejs-port
+          containerPort: 3000
