@@ -54,7 +54,7 @@ curl http://localhost:30257  (8080:30257 got from previous step)
 
 ## Create the pod on kubernetes
 ```
-kubectl create -f pod-hello.yml
+kubectl create -f hello-kubernentes-pod/pod-hello.yml
 kubectl get pod
 kubectl describe pod nodekuberneteshello.example.com
 kubectl port-forward nodekuberneteshello.example.com 8081:3000
@@ -81,7 +81,7 @@ kubectl run -i --tty busybox --image=busybox --restart=Never -- sh
 
 ## Replication Controller - Scale pods
 ```
-kubectl create -f service-hello-controller.yml
+kubectl create -f hello-kubernentes-pod/service-hello-controller.yml
 kubectl get pods
 kubectl describe pod hello-controller-lg26x
 kubectl delete pod hello-controller-lg26x
@@ -89,7 +89,7 @@ kubectl get pods
 ```
 Scale to 4 using file
 ```
-kubectl scale --replicas=4 -f service-hello-controller.yml
+kubectl scale --replicas=4 -f hello-kubernentes-pod/service-hello-controller.yml
 kubectl get rc
 ```
 
@@ -115,7 +115,7 @@ kubectl delete rc/hello-controller
 
 ## Deployments
 ```
-kubectl create -f service-hello-deployment.yml
+kubectl create -f hello-kubernentes-pod/service-hello-deployment.yml
 kubectl get deployments
 kubectl get pods --show-labels
 kubectl rollout status deployment/hello-deployment
@@ -131,9 +131,43 @@ kubectl edit deployment/hello-deployment
 
 ## Services
 ```
-kubectl create -f pod-hello.yml
-kubectl create -f service-hello.yml
+kubectl create -f hello-kubernentes-pod/pod-hello.yml
+kubectl create -f hello-kubernentes-pod/service-hello.yml
 kubectl describe service hello-service
 kubectl get service (or) kubectl get svc
 kubectl delete service hello-service
+```
+
+## Running Wordpress on Kubernetes (no volumes)
+```
+kubectl create -f wordpress-kubernetes/wordpress-secrets.yml
+kubectl create -f wordpress-kubernetes/wordpress-single-deployment-no-volumes.yml
+kubectl get pods
+kubectl describe pod wordpress-deployment-6f47769b85-v9tgp
+kubectl create -f wordpress-kubernetes/wordpress-service.yml
+kubectl proxy
+
+curl http://localhost:31001
+or
+open http://localhost:31001/
+```
+
+## Name space kube-system
+```
+kubectl get pods --namespace=kube-system
+```
+
+## Create a Service Discovery
+```
+kubectl create -f service-discovery/secrets.yml
+kubectl create -f service-discovery/database.yml
+kubectl create -f service-discovery/database-service.yml
+kubectl create -f service-discovery/helloworld-db.yml 
+kubectl create -f service-discovery/helloworld-db-service.yml
+kubectl get pods
+kubectl logs hello-deployment-774ff95d7d-dwfpz
+kubectl get services
+curl -X GET http://localhost:31186/
+curl -X GET http://localhost:31186/
+kubectl exec database -it -- mysql -D helloworld -u root --password=rootpassword -e "select * from visits;"
 ```
