@@ -171,3 +171,53 @@ curl -X GET http://localhost:31186/
 curl -X GET http://localhost:31186/
 kubectl exec database -it -- mysql -D helloworld -u root --password=rootpassword -e "select * from visits;"
 ```
+
+## ConfigMap
+```
+kubectl create configmap nginx-config --from-file=configmap/reverseproxy.conf
+kubectl describe configmap nginx-config
+kubectl get configmap
+kubectl get configmap nginx-config -o yaml
+kubectl create -f configmap/nginx.yml
+kubectl create -f configmap/nginx-service.yml
+kubectl get pods
+kubectl get services
+kubectl proxy
+curl http://localhost:30311 -vvv
+kubectl exec -it helloworld-nginx -c nginx -- bash
+cat /etc/nginx/conf.d/reverseproxy.conf
+kubectl exec -it helloworld-nginx -c k8s-demo -- bash
+```
+
+## Ingress
+```
+v1
+kubectl create -f ingress/ingress.yml
+kubectl create -f ingress/nginx-ingress-controller.yml
+kubectl create -f ingress/echoservice.yml
+kubectl create -f ingress/helloworld-v1.yml
+kubectl create -f ingress/helloworld-v2.yml
+kubectl get pod
+kubectl get service
+kubectl get ingress
+kubectl get ingress helloworld-rules
+edit /etc/hosts and add helloworld-v1.example.com and helloworld-v2.example.com
+curl helloworld-v1.example.com
+curl helloworld-v2.example.com
+
+v2
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml
+or
+kubectl apply -f ingress/mandatory.yaml
+kubectl apply -f ingress/nginx-ingress.yml 
+kubectl get svc -n ingress-nginx
+kubectl get pods -n ingress-nginx
+kubectl get service -n ingress-nginx
+kubectl create -f ingress/ingress.yml
+kubectl create -f ingress/helloworld-v1.yml
+kubectl create -f ingress/helloworld-v2.yml
+edit /etc/hosts and add helloworld-v1.example.com and helloworld-v2.example.com
+curl helloworld-v1.example.com
+curl helloworld-v2.example.com
+
+```
