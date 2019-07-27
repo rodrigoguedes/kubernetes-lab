@@ -28,8 +28,20 @@ docker run -p 3000:3000 -it IMAGE_ID (from rodrigoguedes)
 
 # Kubernetes commands
 
+## Dashboard
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta1/aio/deploy/recommended.yaml
+kubectl proxy
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/.
+# To get the Token
+kubectl -n kube-system get secret | grep deployment-controller-token
+kubectl -n kube-system describe secret deployment-controller-token-<GENERATED ID>
+kubectl -n kube-system describe secret deployment-controller-token-mvtxk | grep token
+```
+
 ## Command used to docker-for-desktop
 ```
+kubectl cluster-info
 kubectl get nodes
 kubectl config get-contexts
 kubectl config use-context docker-for-desktop
@@ -191,7 +203,7 @@ kubectl exec -it helloworld-nginx -c k8s-demo -- bash
 
 ## Ingress
 ```
-v1
+v1 - running in minikube
 kubectl create -f ingress/ingress.yml
 kubectl create -f ingress/nginx-ingress-controller.yml
 kubectl create -f ingress/echoservice.yml
@@ -205,11 +217,11 @@ edit /etc/hosts and add helloworld-v1.example.com and helloworld-v2.example.com
 curl helloworld-v1.example.com
 curl helloworld-v2.example.com
 
-v2
+v2 - running in docker-for-desktop (LoadBalancer)
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml
 or
-kubectl apply -f ingress/mandatory.yaml
-kubectl apply -f ingress/nginx-ingress.yml 
+kubectl apply -f ingress/nginx-ingress-controller-local.yaml
+kubectl apply -f ingress/ingress-local.yml 
 kubectl get svc -n ingress-nginx
 kubectl get pods -n ingress-nginx
 kubectl get service -n ingress-nginx
@@ -219,5 +231,47 @@ kubectl create -f ingress/helloworld-v2.yml
 edit /etc/hosts and add helloworld-v1.example.com and helloworld-v2.example.com
 curl helloworld-v1.example.com
 curl helloworld-v2.example.com
+```
 
+## Volumes - Memory / Temporary disks
+```
+kubectl create -f volumes/storage-memory.yml 
+kubectl exec -it memory-pd -c memory-pd -- bash
+cd /memory-pd
+or -> kubectl exec memory-pd -- ls -lh | grep memory-pd
+kubectl describe pod memory-pd
+```
+
+## Volumes - Cloud Volumes - Google
+```
+Create Volume - Using AWS's EBS
+# From the console, in Compute Engine, go to Disks. On this new screen, click on the Create Disk button. 
+kubectl create -f storage-gce.yml
+kubectl describe pod/test-gce
+```
+
+## Volumes - Cloud Volumes - AWS
+```
+Create Volume - Using AWS's EBS
+aws ec2 create-volume --size 10 --region your-region --availability-zone your-zone --volume-type gp2 --tag-specifications 'ResourceType=volume, Tags=[{Key= KubernetesCluster, Value=kubernetes.domain.tld}]'
+# This command will return a json so you need t0 get the VolumeId information for next command
+kubectl get node
+kubectl get pod
+kubectl create -f volumes/helloworld-with-volume-aws.yml
+```
+
+## Volumes - Persistence Volume + Persistence Volume Claim + Deployment/Mysql
+```
+kubectl create -f volumes/mysql-persistence-volume.yml
+kubectl get pv
+kubectl describe pv my-pv
+kubectl create -f volumes/mysql-persistence-volume-claim.yml
+kubectl get pvc
+kubectl describe pvc mysql-pvc
+kubectl create -f volumes/mysql-deployment.yml
+kubectl get pods
+kubectl exec -it mysql-786468dccf-prm48 -- bash
+ls /var/lib/mysql/data
+ls -R ~/.docker/Volumes/mysql-pvc
+tree ~/.docker/Volumes/mysql-pvc
 ```
